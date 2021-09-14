@@ -1,19 +1,9 @@
 import pandas as pd
-import numpy as np
-from scipy.sparse import data
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
-import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.tree import export_graphviz
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.cluster import AgglomerativeClustering
-from sklearn.model_selection import GridSearchCV
-import preparacao
 from sklearn.ensemble import RandomForestClassifier
+import api.machine_learning.data_preparation as data_preparation
 
 
 def Recomendacao(locais):
@@ -34,11 +24,11 @@ def Recomendacao(locais):
 
     dataset = dataset.rename(columns = colunas)
 
-    dataset = preparacao.PadronizarValores(dataset)
+    dataset = data_preparation.PadronizarValores(dataset)
 
-    dataset = preparacao.CalcularIdade(dataset)
+    dataset = data_preparation.CalcularIdade(dataset)
 
-    dataset = preparacao.SepararDestinos(dataset, locais)
+    dataset = data_preparation.SepararDestinos(dataset, locais)
 
 
     #Separação de treino e teste
