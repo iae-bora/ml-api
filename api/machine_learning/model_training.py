@@ -4,8 +4,6 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_validate
-import warnings
-warnings.filterwarnings('ignore')
 
 
 def Treinar(locais, dataset, rodada, entrada, sample):
