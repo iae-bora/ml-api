@@ -2,6 +2,8 @@ import random
 import pandas as pd
 import logging
 import os
+from flask import jsonify
+
 import api.machine_learning.model_training as treino
 
 locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO', 'BIBLIOTECA', 'JOGOS', 'TEATRO', 'BAR']
@@ -28,18 +30,27 @@ class Service:
     def predict(self, params):
         try:
             retornos = []
-            entrada = params['answers']
+            lista = [
+                params['id'], 
+                params['musics'], 
+                params['food'], 
+                params['movies'], 
+                params['sports'], 
+                params['teams'],
+                params['religion'],
+                params['haveChildren'],
+                params['userAge']
+            ]
+
+            self.logger.info(f'Received answers: {lista}')
 
             dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dados.csv'))
             dataset = dataset.drop(columns='Unnamed: 0')
             dataset = dataset.query("destino != 'OUTROS'")
 
-            lista = entrada
-            self.logger.info(f'Received answers: {lista}')
-
-            for i in range(params['qtd_destinos']):
+            for i in range(params['placesCount']):
                 dataset = dataset[dataset['destino'].str.upper().isin(locais)]
-                modelo = treino.Recomendar(dataset, entrada)
+                modelo = treino.Recomendar(dataset, lista)
                 recomendacao = modelo.predict([lista])[0]
                 self.logger.info(f'Recommended category: {recomendacao}')
 
@@ -49,8 +60,8 @@ class Service:
                 if recomendacao.upper() != 'OUTROS':
                     locais.remove(recomendacao.upper())
             
-            self.logger.info(f'Recommentations: {retornos}')
-            return {'recomendacoes': retornos}, 200
+            self.logger.info(f'List of recommendations: {retornos}')
+            return jsonify(retornos), 200
         except Exception as e:
             self.logger.error(f'Error while processing recommendations: {e}')
             return { 'message': f'Error while processing recommendations: {str(e)}' }, 500
