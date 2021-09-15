@@ -1,55 +1,71 @@
-import pandas as pd
+from numpy.core.fromnumeric import mean
+from sklearn.cluster import KMeans
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.ensemble import RandomForestClassifier
-import api.machine_learning.data_preparation as data_preparation
+from sklearn.model_selection import cross_validate
+import warnings
+warnings.filterwarnings('ignore')
 
 
-def Recomendacao(locais):
-    dataset = pd.read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vTovXh_UG_XTyZoRjvsWsqOdLWpfLTxTLTG0_tj57dPg1AXlOMuqOsnezGQv8_PAQPnku8S-Nf-6PS4/pub?output=csv")
-
-    #Renomear colunas
-    colunas = {
-        'Qual gênero musical você mais gosta?' : 'genero_musical',
-        'Qual o seu tipo de comida favorito?' : 'comida_favorita',
-        'Qual o seu estilo de filme favorito' : 'filme_favorito',
-        'Qual seu esporte favorito? ' : 'esporte_favorito',
-        'Torce para algum time?' : 'time',
-        'Possui alguma religião?' : 'religiao',
-        'Tem filhos?' : 'tem_filhos',
-        'Qual a sua data de nascimento? ' : 'data_nascimento',
-        'Que tipo de lugar você mais gosta de ir?' : 'destino'
-    }
-
-    dataset = dataset.rename(columns = colunas)
-
-    dataset = data_preparation.PadronizarValores(dataset)
-
-    dataset = data_preparation.CalcularIdade(dataset)
-
-    dataset = data_preparation.SepararDestinos(dataset, locais)
-
-
+def Treinar(locais, dataset, rodada, entrada, sample):
     #Separação de treino e teste
+    
+    y = dataset['destino'].str.strip()
+    x = dataset.drop(columns=['destino'])
+    #y_sample = sample['destino'].str.strip()
+    #x_sample = sample.drop(columns=['destino'])
+
+    #Clusterização
+    kmeans = KMeans(n_clusters=3)
+
+    data_array = x.values
+    x["clusters"] = kmeans.fit_predict(data_array)
+    entrada.append(kmeans.predict([entrada]))
+
+
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y)
+
+
+    modelo = DecisionTreeClassifier()
+    modelo.fit(X_train, y_train)
+
+
+    results = cross_validate(modelo, x, y, cv = 3, n_jobs = 3)
+    previsoes_SVC = modelo.predict(X_train)
+    acuracia = accuracy_score(y_train, previsoes_SVC) * 100
+    acuracia_cross = mean(results['test_score'])*100
+    
+    #previsoes_sample = modelo.predict(x_sample)
+    #acuracia_sample = accuracy_score(y_sample, previsoes_sample) * 100
+
+    print("---------------------------------------------------------------------------------------------")
+    print("Rodada: " + str(rodada))
+    print("Treinaremos com %d elementos e testaremos com %d elementos" % (len(X_train), len(X_test)))
+    print("A acurácia foi de %.2f%%" % acuracia)
+    print("A acurácia cross foi de %.2f%%" % acuracia_cross)
+
+    saida = modelo.predict([entrada])
+
+    return saida, acuracia, ""
+
+def Recomendar(dataset, resposta):
+
+    #Clusterização
     y = dataset['destino'].str.strip()
     x = dataset.drop(columns=['destino'])
 
+    kmeans = KMeans(n_clusters=3)
+    x['Cluster'] = kmeans.fit_predict(x)
 
-    #Clusterização
-    modelo = AgglomerativeClustering(n_clusters=3)
-    grupos = modelo.fit_predict(x)
-    x['Cluster'] = modelo.labels_
+    
 
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y)
 
-
-    modelo = RandomForestClassifier()
+    modelo = DecisionTreeClassifier()
     modelo.fit(X_train, y_train)
     previsoes_SVC = modelo.predict(X_train)
     acuracia = accuracy_score(y_train, previsoes_SVC) * 100
     print("A acurácia foi de %.2f%%" % acuracia)
-    print(dataset['destino'].value_counts)
 
     return modelo
-

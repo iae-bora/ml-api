@@ -12,3 +12,8 @@ def predict():
         return { 'message': 'Empty parameters received'}, 400
     
     return ml_service.predict(request_params)
+
+@ml.route('/Train', methods=['POST'])
+def train():
+    ml_service.train()
+    return { 'message': 'Model trained successfully'}, 200

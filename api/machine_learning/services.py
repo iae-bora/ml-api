@@ -2,25 +2,43 @@
 # from flask_cors import CORS
 # import pickle, os
 # from numpy.core.records import record
-import model_training as treino
+import api.machine_learning.model_training as treino
 import random
 import pandas as pd
+import logging
+import os
 # from multiprocessing import  Pool
 import numpy as np
 # import matplotlib.pyplot as plt
 # import threading
 # from queue import Queue
-import warnings
-warnings.filterwarnings('ignore')
+# import warnings
+# warnings.filterwarnings('ignore')
 
 rodadas = []
 acuracias = []
-retornos = []
+acuracias_sample = []
+locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO', 'BIBLIOTECA', 'JOGOS', 'TEATRO', 'BAR']
 
+enum_saida = {
+    "Parque" : 1,
+    "Museu" : 2,
+    "Cinema" : 3,
+    "Shopping" : 4,
+    "Bar" : 5,
+    "Show" : 7,
+    "Biblioteca" : 8,
+    "Estádio" : 9,
+    "Jogos" : 10,
+    "Teatro" : 11,
+}
+
+logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s')
 
 class Service:
     def __init__(self):
-        self._gerarBase()
+        # self._gerarBase()
+        self.logger = logging.getLogger(__name__)
     
     def _gerarBase(self):
         locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO', 'BIBLIOTECA', 'JOGOS', 'TEATRO', 'BAR']
@@ -52,26 +70,64 @@ class Service:
     
     def predict(self, params):
         try:
-            answers_list = list(params['answers'].values())
-            print(answers_list)
+            retornos = []
+            entrada = params['answers']
 
-            place_categories_list = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO', 'BIBLIOTECA', 'JOGOS', 'TEATRO', 'BAR']
+            dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dados.csv'))
+            dataset = dataset.drop(columns='Unnamed: 0')
+            dataset = dataset.query("destino != 'OUTROS'")
 
-            recommended_categories = []
+            lista = entrada
+            print(lista)
 
             for i in range(params['qtd_destinos']):
-                ml_model = treino.Recomendacao(place_categories_list)
-                recommended_category = ml_model.predict([answers_list])
-                recommended_categories.append(recommended_category[0].upper())
-                print(recommended_category[0].upper())
+                dataset = dataset[dataset['destino'].str.upper().isin(locais)]
+                modelo = treino.Recomendar(dataset, entrada)
+                recomendacao = modelo.predict([lista])[0]
+                recomendacao_convertida = enum_saida[recomendacao]
+                retornos.append(recomendacao_convertida)
 
-                if recommended_category[0].upper() != 'OUTROS':
-                    place_categories_list.remove(recommended_category[0].upper())
-            saida = {'recommendations' : recommended_categories}
+                if recomendacao.upper() != 'OUTROS':
+                    locais.remove(recomendacao.upper())
 
-            return saida, 200
-        except:
+            return {'recomendacoes': retornos}, 200
+        except Exception as e:
+            self.logger.error(e)
             return { 'message': 'Error while processing recommendations' }, 500
+
+    def train():
+        dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dados_treino.csv'))
+        dataset = dataset.drop(columns='Unnamed: 0')
+        dataset = dataset.query("destino != 'OUTROS'")
+        sample = dataset.sample(n=50)
+        print(dataset.shape)
+        print(dataset)
+        dataset = dataset[~dataset.isin(sample)]
+        dataset = dataset.dropna()
+
+        for rodada in range(20000):
+            
+            entrada = [random.randint(0,6), random.randint(0,5), random.randint(0,7), random.randint(0,4), random.randint(0,4), random.randint(0,5), random.randint(0,1), random.randint(15,60)]
+            resposta, acuracia, acuracia_sample = treino.Treinar(locais, dataset, rodada, entrada, sample)
+            acuracias.append(acuracia)
+
+            rodadas.append(rodada)
+            entrada.append(str(resposta[0]))
+
+            dict_entrada = {
+                'genero_musical' : entrada[0],
+                'comida_favorita' : entrada[1],
+                'filme_favorito' : entrada[2],
+                'esporte_favorito' : entrada[3],
+                'time' : entrada[4],
+                'religiao' : entrada[5],
+                'tem_filhos' : entrada[6],
+                'idade' : entrada[7],
+                'destino' : entrada[9]
+            }
+            dataset = dataset.append(dict_entrada, ignore_index=True)
+
+        dataset.to_csv("dados.csv")
 
 
 # app = Flask(__name__)
