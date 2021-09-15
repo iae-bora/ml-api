@@ -4,6 +4,9 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_validate
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def Treinar(locais, dataset, rodada, entrada, sample):
@@ -37,11 +40,11 @@ def Treinar(locais, dataset, rodada, entrada, sample):
     #previsoes_sample = modelo.predict(x_sample)
     #acuracia_sample = accuracy_score(y_sample, previsoes_sample) * 100
 
-    print("---------------------------------------------------------------------------------------------")
-    print("Rodada: " + str(rodada))
-    print("Treinaremos com %d elementos e testaremos com %d elementos" % (len(X_train), len(X_test)))
-    print("A acurácia foi de %.2f%%" % acuracia)
-    print("A acurácia cross foi de %.2f%%" % acuracia_cross)
+    logger.info("---------------------------------------------------------------------------------------------")
+    logger.info("Rodada: " + str(rodada))
+    logger.info("Treinaremos com %d elementos e testaremos com %d elementos" % (len(X_train), len(X_test)))
+    logger.info("A acurácia foi de %.2f%%" % acuracia)
+    logger.info("A acurácia cross foi de %.2f%%" % acuracia_cross)
 
     saida = modelo.predict([entrada])
 
@@ -56,14 +59,12 @@ def Recomendar(dataset, resposta):
     kmeans = KMeans(n_clusters=3)
     x['Cluster'] = kmeans.fit_predict(x)
 
-    
-
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y)
 
     modelo = DecisionTreeClassifier()
     modelo.fit(X_train, y_train)
     previsoes_SVC = modelo.predict(X_train)
     acuracia = accuracy_score(y_train, previsoes_SVC) * 100
-    print("A acurácia foi de %.2f%%" % acuracia)
+    logger.info("A acurácia foi de %.2f%%" % acuracia)
 
     return modelo
