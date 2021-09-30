@@ -6,7 +6,7 @@ from flask import jsonify
 
 import api.machine_learning.model_training as treino
 
-locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO', 'BIBLIOTECA', 'JOGOS', 'TEATRO', 'BAR']
+
 
 enum_saida = {
     "Parque" : 1,
@@ -29,6 +29,8 @@ class Service:
     
     def predict(self, params):
         try:
+
+            locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO', 'BIBLIOTECA', 'JOGOS', 'TEATRO', 'BAR']
             retornos = []
             lista = [
                 params['id'], 
