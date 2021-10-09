@@ -29,7 +29,7 @@ def Treinar(locais, dataset, rodada, entrada, sample):
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y)
 
 
-    modelo = DecisionTreeClassifier()
+    modelo = DecisionTreeClassifier(max_depth=5)
     modelo.fit(X_train, y_train)
 
     cv = KFold(n_splits = 10, shuffle=True)
@@ -66,7 +66,7 @@ def Recomendar(dataset, resposta):
 
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y)
 
-    modelo = DecisionTreeClassifier()
+    modelo = DecisionTreeClassifier(max_depth=5)
     modelo.fit(X_train, y_train)
     previsoes_SVC = modelo.predict(X_train)
     cv = KFold(n_splits = 10, shuffle=True)
