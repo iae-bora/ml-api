@@ -4,6 +4,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_validate
+from sklearn.model_selection import KFold
 import logging
 
 logger = logging.getLogger(__name__)
@@ -31,8 +32,12 @@ def Treinar(locais, dataset, rodada, entrada, sample):
     modelo = DecisionTreeClassifier()
     modelo.fit(X_train, y_train)
 
+    cv = KFold(n_splits = 10, shuffle=True)
+    results = cross_validate(modelo, x, y, cv = cv, n_jobs = 3)
+    media = results ['test_score'].mean()
+    desvio_padrao = results['test_score'].std()
+    print("Accuracy com cross validation, 5 = [%.2f, %.2f]" % ((media - 2 *desvio_padrao) * 100, (media + 2 * desvio_padrao) * 100))
 
-    results = cross_validate(modelo, x, y, cv = 3, n_jobs = 3)
     previsoes_SVC = modelo.predict(X_train)
     acuracia = accuracy_score(y_train, previsoes_SVC) * 100
     acuracia_cross = mean(results['test_score'])*100
@@ -64,7 +69,11 @@ def Recomendar(dataset, resposta):
     modelo = DecisionTreeClassifier()
     modelo.fit(X_train, y_train)
     previsoes_SVC = modelo.predict(X_train)
+    cv = KFold(n_splits = 10, shuffle=True)
+    results = cross_validate(modelo, x, y, cv = cv, n_jobs = 3)
+    acuracia_cross = mean(results['test_score'])*100
+
     acuracia = accuracy_score(y_train, previsoes_SVC) * 100
-    logger.info("A acurácia foi de %.2f%%" % acuracia)
+    logger.info("A acurácia foi de %.2f%%" % acuracia_cross)
 
     return modelo

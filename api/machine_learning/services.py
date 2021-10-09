@@ -31,6 +31,7 @@ class Service:
         try:
             locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO',  'JOGOS', 'TEATRO', 'BAR']
             retornos = []
+            
             lista = [
                 params['id'], 
                 params['musics'], 
@@ -63,6 +64,7 @@ class Service:
             
             self.logger.info(f'List of recommendations: {retornos}')
             return jsonify(retornos), 200
+            
         except Exception as e:
             self.logger.error(f'Error while processing recommendations: {e}')
             return { 'message': f'Error while processing recommendations: {str(e)}' }, 500
@@ -70,7 +72,7 @@ class Service:
     def train(self):
         rodadas = []
         acuracias = []
-        
+        locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO',  'JOGOS', 'TEATRO', 'BAR']
         dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dados_treino.csv'))
         dataset = dataset.drop(columns='Unnamed: 0')
         dataset = dataset.query("destino != 'OUTROS'")
