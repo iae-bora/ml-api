@@ -4,7 +4,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_validate
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 import logging
 
 logger = logging.getLogger(__name__)
@@ -26,13 +26,13 @@ def Treinar(locais, dataset, rodada, entrada, sample):
     entrada.append(kmeans.predict([entrada]))
 
 
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
 
 
-    modelo = DecisionTreeClassifier(max_depth=5)
+    modelo = DecisionTreeClassifier(max_depth=10)
     modelo.fit(X_train, y_train)
 
-    cv = KFold(n_splits = 10, shuffle=True)
+    cv = StratifiedKFold(n_splits = 5, shuffle=True)
     results = cross_validate(modelo, x, y, cv = cv, n_jobs = 3)
     media = results ['test_score'].mean()
     desvio_padrao = results['test_score'].std()
@@ -50,6 +50,7 @@ def Treinar(locais, dataset, rodada, entrada, sample):
     logger.info("Treinaremos com %d elementos e testaremos com %d elementos" % (len(X_train), len(X_test)))
     logger.info("A acurácia foi de %.2f%%" % acuracia)
     logger.info("A acurácia cross foi de %.2f%%" % acuracia_cross)
+    logger.info(entrada)
 
     saida = modelo.predict([entrada])
 
@@ -64,12 +65,12 @@ def Recomendar(dataset, resposta):
     kmeans = KMeans(n_clusters=3)
     x['Cluster'] = kmeans.fit_predict(x)
 
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
 
-    modelo = DecisionTreeClassifier(max_depth=5)
+    modelo = DecisionTreeClassifier(max_depth=10)
     modelo.fit(X_train, y_train)
     previsoes_SVC = modelo.predict(X_train)
-    cv = KFold(n_splits = 10, shuffle=True)
+    cv = StratifiedKFold(n_splits = 5, shuffle=True)
     results = cross_validate(modelo, x, y, cv = cv, n_jobs = 3)
     acuracia_cross = mean(results['test_score'])*100
 

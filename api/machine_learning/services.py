@@ -73,16 +73,18 @@ class Service:
         rodadas = []
         acuracias = []
         locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO',  'JOGOS', 'TEATRO', 'BAR']
-        dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dados_treino.csv'))
-        dataset = dataset.drop(columns='Unnamed: 0')
+        dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dados_treino.csv'), sep = ";")
+        
+        dataset = dataset.drop(columns=['Unnamed: 0'])
+        print(dataset)
         dataset = dataset.query("destino != 'OUTROS'")
-        sample = dataset.sample(n=50)
+        sample = dataset.sample(n=10)
 
         self.logger.info(f'Dataset shape: {str(dataset.shape)}')
         dataset = dataset[~dataset.isin(sample)]
         dataset = dataset.dropna()
 
-        for rodada in range(20000):
+        for rodada in range(6000):
             
             entrada = [random.randint(0,6), random.randint(0,5), random.randint(0,7), random.randint(0,4), random.randint(0,4), random.randint(0,5), random.randint(0,1), random.randint(15,60)]
             resposta, acuracia, acuracia_sample = treino.Treinar(locais, dataset, rodada, entrada, sample)
