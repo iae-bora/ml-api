@@ -3,7 +3,6 @@ import pandas as pd
 import logging
 import os
 from flask import jsonify
-from imblearn.under_sampling import NearMiss
 import api.machine_learning.model_training as treino
 
 
