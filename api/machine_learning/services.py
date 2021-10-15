@@ -3,7 +3,7 @@ import pandas as pd
 import logging
 import os
 from flask import jsonify
-
+from imblearn.under_sampling import NearMiss
 import api.machine_learning.model_training as treino
 
 
@@ -14,6 +14,7 @@ enum_saida = {
     "Cinema" : 3,
     "Shopping" : 4,
     "Bar" : 5,
+    "Restaurante" : 6,
     "Show" : 7,
     "Biblioteca" : 8,
     "Estádio" : 9,
@@ -29,7 +30,17 @@ class Service:
     
     def predict(self, params):
         try:
-            locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO',  'JOGOS', 'TEATRO', 'BAR']
+            locais_aux = params['places']
+            index_dict = list(enum_saida.keys())
+            print(index_dict)
+            locais = []
+
+            n = 0
+            for i in locais_aux:
+                print(locais_aux[n])
+                locais.append(index_dict[locais_aux[n]-1])
+                n = n + 1
+
             retornos = []
             
             lista = [
@@ -51,7 +62,7 @@ class Service:
             dataset = dataset.query("destino != 'OUTROS'")
 
             for i in range(params['placesCount']):
-                dataset = dataset[dataset['destino'].str.upper().isin(locais)]
+                dataset = dataset[dataset['destino'].isin(locais)]
                 modelo = treino.Recomendar(dataset, lista)
                 recomendacao = modelo.predict([lista])[0]
                 self.logger.info(f'Recommended category: {recomendacao}')
@@ -59,8 +70,8 @@ class Service:
                 recomendacao_convertida = enum_saida[recomendacao]
                 retornos.append(recomendacao_convertida)
 
-                if recomendacao.upper() != 'OUTROS':
-                    locais.remove(recomendacao.upper())
+                if recomendacao != 'OUTROS':
+                    locais.remove(recomendacao)
             
             self.logger.info(f'List of recommendations: {retornos}')
             return jsonify(retornos), 200
@@ -73,21 +84,32 @@ class Service:
         rodadas = []
         acuracias = []
         locais = ['CINEMA', 'RESTAURANTE', 'SHOPPING', 'PARQUE', 'SHOW', 'MUSEU', 'BIBLIOTECA', 'ESTÁDIO',  'JOGOS', 'TEATRO', 'BAR']
-        dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dados_treino.csv'), sep = ";")
+        dataset = pd.read_csv(os.path.join(os.getcwd(), 'api', 'machine_learning', 'dadosv1.csv'), sep = ";", encoding='ISO-8859-1')
         
-        dataset = dataset.drop(columns=['Unnamed: 0'])
+        #dataset = dataset.drop(columns=['Unnamed: 0'])
         print(dataset)
         dataset = dataset.query("destino != 'OUTROS'")
-        sample = dataset.sample(n=10)
+        sample = dataset.sample(n=50)
 
         self.logger.info(f'Dataset shape: {str(dataset.shape)}')
         dataset = dataset[~dataset.isin(sample)]
         dataset = dataset.dropna()
 
-        for rodada in range(6000):
-            
+        y = dataset['destino'].str.strip()
+        x = dataset.drop(columns=['destino'])
+
+        nr = NearMiss()
+
+        x, y = nr.fit_sample(x, y)
+
+
+        for rodada in range(2000):
+            y = dataset['destino'].str.strip()
+            x = dataset.drop(columns=['destino'])
+
+
             entrada = [random.randint(0,6), random.randint(0,5), random.randint(0,7), random.randint(0,4), random.randint(0,4), random.randint(0,5), random.randint(0,1), random.randint(15,60)]
-            resposta, acuracia, acuracia_sample = treino.Treinar(locais, dataset, rodada, entrada, sample)
+            resposta, acuracia, acuracia_sample = treino.Treinar(locais, x, y, rodada, entrada, sample)
             acuracias.append(acuracia)
 
             rodadas.append(rodada)
