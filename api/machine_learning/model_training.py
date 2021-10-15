@@ -6,8 +6,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_validate
 from sklearn.model_selection import StratifiedKFold
 import logging
-from imblearn.under_sampling import RandomUnderSampler
-from imblearn.under_sampling import NearMiss
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +28,6 @@ def Treinar(locais, x, y, rodada, entrada, sample):
 
     X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, shuffle=True)
 
-    rus = RandomUnderSampler()
 
     modelo = DecisionTreeClassifier(max_depth=15)
     modelo.fit(X_train, y_train)
