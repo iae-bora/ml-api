@@ -98,10 +98,6 @@ class Service:
         y = dataset['destino'].str.strip()
         x = dataset.drop(columns=['destino'])
 
-        nr = NearMiss()
-
-        x, y = nr.fit_sample(x, y)
-
 
         for rodada in range(2000):
             y = dataset['destino'].str.strip()
