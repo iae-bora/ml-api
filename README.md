@@ -1,7 +1,20 @@
-# IAe, Bora? ML API
-<a href="https://www.python.org/">
-  <img src="https://img.shields.io/badge/python-3.7-blue.svg" alt="Python 3.7" />
-</a>
+<h1 align='center'>
+  <img width=200 height=100 src="./.github/logo.png" alt="IAe, Bora?" title="IAe, Bora?"/>
+</h1>
+
+<p align="center">
+  <a href="#-about">About</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-technologies">Technologies</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-machine-learning-models">Machine learning models</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-running-locally">Running locally</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#-running-with-docker">Running with Docker</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/static/v1?label=Python&message=3.7&color=00A1BF&labelColor=000000" alt="Python 3.7" />
+</p>
+
+## :book: About
 
 API developed in Python which predicts the categories of places that an user should visit based on his answers. This API runs K-Means and Decision Tree Classifier as machine learning models to predict the output.
 
