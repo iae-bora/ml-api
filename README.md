@@ -6,6 +6,7 @@
   <a href="#book-about">About</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#%EF%B8%8F-technologies">Technologies</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#man_technologist-machine-learning-models">Machine learning models</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+  <a href="#cityscape-solution-architecture">Solution architecture</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#computer-running-locally">Running locally</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#whale-running-with-docker">Running with Docker</a>
 </p>
@@ -25,6 +26,18 @@ API developed in Python which predicts the categories of places that an user sho
 ## :man_technologist: Machine learning models
 - [K-Means](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html)
 - [Decision Tree Classifier](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html)
+
+## :cityscape: Solution architecture
+This repository is represented by the number 3 in the architecture, if you want to view the other repositories of the solution, click on one of the items below:
+
+<p align="center">
+  <img src="architecture.png"/>
+</p>
+
+- [(1) Web Crawler](https://github.com/iae-bora/abc-tourism-crawler)
+- [(4) Back-End](https://github.com/iae-bora/back-end)
+- [(5) Front-End](https://github.com/iae-bora/front-end)
+- [(6) Mobile](https://github.com/iae-bora/mobile)
 
 ## :computer: Running locally
 1. Install the dependencies
